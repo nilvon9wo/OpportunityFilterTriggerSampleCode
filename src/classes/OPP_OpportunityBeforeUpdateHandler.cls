@@ -21,4 +21,4 @@ public class OPP_OpportunityBeforeUpdateHandler implements XAP_TRIG_TriggerEvent
 		// TODO: Do something with your filtered values here.
 		return this;
 	}  
-} 
+}

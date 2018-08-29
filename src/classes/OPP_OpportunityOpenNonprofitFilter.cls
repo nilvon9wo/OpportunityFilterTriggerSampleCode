@@ -52,4 +52,4 @@ public class OPP_OpportunityOpenNonprofitFilter {
 	private Boolean isOpen(Opportunity opportunity) {
 		return STAGE_OPEN.equals(opportunity.StageName);
 	}
-} 
+}
