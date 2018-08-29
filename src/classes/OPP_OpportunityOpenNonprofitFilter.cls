@@ -32,8 +32,13 @@ public class OPP_OpportunityOpenNonprofitFilter {
 	public Map<Id, Opportunity> filter(XAP_TRIG_TriggerWrapper triggerWrapper) {
 		Map<Id, Opportunity> filteredOpportunityByIdMap = new Map<Id, Opportunity>();
 		for (Opportunity newOpportunity : (List<Opportunity>) triggerWrapper.newSObjectList) {
-			if (isOpenNonProfit(newOpportunity)) {
-				if (hasSignificantChange(newOpportunity, (Map<Id, Opportunity>) triggerWrapper.oldSObjectByIdMap)) {
+			Boolean isOpenNonProfit = this.isOpen(newOpportunity) && BUSINESS_TYPE_NON_PROFIT.equals(newOpportunity.Business_Need__c); 
+			if (isOpenNonProfit) { 
+				Opportunity oldOpportunity = (Opportunity) triggerWrapper.oldSObjectByIdMap.get(newOpportunity.Id);
+				Boolean wasAlreadyOpenAndHasSignificantChanges = this.isOpen(oldOpportunity) 
+					&& this.sObjectComparitor.hasSignificantChange(FIELD_OF_INTEREST_SET, newOpportunity, oldOpportunity);
+					
+				if (wasAlreadyOpenAndHasSignificantChanges) {
  					filteredOpportunityByIdMap.put(newOpportunity.Id, newOpportunity);
 				}
 				else {
@@ -41,22 +46,10 @@ public class OPP_OpportunityOpenNonprofitFilter {
 				}
 			}
 		}
-		
 		return filteredOpportunityByIdMap;
-	}
-
-	private Boolean hasSignificantChange(Opportunity newOpportunity, Map<Id, Opportunity> oldOpportunityByIdMap) {
-		Opportunity oldOpportunity = oldOpportunityByIdMap.get(newOpportunity.Id);
-		return this.isOpen(oldOpportunity)
-			&& this.sObjectComparitor.hasSignificantChange(FIELD_OF_INTEREST_SET, newOpportunity, oldOpportunity);
 	}
 
 	private Boolean isOpen(Opportunity opportunity) {
 		return STAGE_OPEN.equals(opportunity.StageName);
 	}
-	
-	private Boolean isOpenNonProfit(Opportunity opportunity) {
-		return BUSINESS_TYPE_NON_PROFIT.equals(opportunity.Business_Need__c)
-			&& this.isOpen(opportunity);
-	}	
 } 
